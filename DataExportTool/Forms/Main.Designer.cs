@@ -49,9 +49,9 @@
             addressablePathTitle = new Label();
             resourcesPath = new Label();
             ListBox_Table = new ListBox();
-            dataGridView1 = new DataGridView();
+            tableDataView = new DataGridView();
             Group_Info.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)dataGridView1).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)tableDataView).BeginInit();
             SuspendLayout();
             // 
             // Btn_ExcelLoad
@@ -119,6 +119,7 @@
             Btn_DataExport.TabIndex = 18;
             Btn_DataExport.Text = "테입블 데이터 추출";
             Btn_DataExport.UseVisualStyleBackColor = true;
+            Btn_DataExport.Click += Btn_DataExport_Click;
             // 
             // Btn_TableCSExport
             // 
@@ -128,6 +129,7 @@
             Btn_TableCSExport.TabIndex = 17;
             Btn_TableCSExport.Text = "테이블 CS 추출";
             Btn_TableCSExport.UseVisualStyleBackColor = true;
+            Btn_TableCSExport.Click += Btn_TableCSExport_Click;
             // 
             // excelPath
             // 
@@ -267,18 +269,25 @@
             ListBox_Table.TabIndex = 5;
             ListBox_Table.SelectedIndexChanged += ListBox_Table_SelectedIndexChanged;
             // 
-            // dataGridView1
+            // tableDataView
             // 
-            dataGridView1.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridView1.Location = new Point(279, 254);
-            dataGridView1.Name = "dataGridView1";
-            dataGridView1.Size = new Size(1059, 469);
-            dataGridView1.TabIndex = 6;
+            tableDataView.AllowUserToAddRows = false;
+            tableDataView.AllowUserToDeleteRows = false;
+            tableDataView.AllowUserToResizeColumns = false;
+            tableDataView.AllowUserToResizeRows = false;
+            tableDataView.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            tableDataView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            tableDataView.ColumnHeadersVisible = false;
+            tableDataView.Location = new Point(279, 254);
+            tableDataView.Name = "tableDataView";
+            tableDataView.ReadOnly = true;
+            tableDataView.Size = new Size(1059, 469);
+            tableDataView.TabIndex = 6;
             // 
             // Main
             // 
             ClientSize = new Size(1350, 729);
-            Controls.Add(dataGridView1);
+            Controls.Add(tableDataView);
             Controls.Add(ListBox_Table);
             Controls.Add(Group_Info);
             Name = "Main";
@@ -286,7 +295,7 @@
             Load += Main_Load;
             Group_Info.ResumeLayout(false);
             Group_Info.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)dataGridView1).EndInit();
+            ((System.ComponentModel.ISupportInitialize)tableDataView).EndInit();
             ResumeLayout(false);
         }
         #endregion
@@ -309,9 +318,10 @@
         private Label excelPath;
         private Label excelPathTitle;
         private ListBox ListBox_Table;
-        private DataGridView dataGridView1;
+        private DataGridView tableDataView;
         private Button Btn_STRExport;
         private Button Btn_DataExport;
         private Button Btn_TableCSExport;
+        private TreeView treeView1;
     }
 }

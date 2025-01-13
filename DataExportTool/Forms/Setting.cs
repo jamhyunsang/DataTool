@@ -13,25 +13,25 @@
         }
 
         #region Member Property
-        private ProjectData? projectData = null;
+        private SettingInfo SettingInfo = null;
         #endregion
 
         #region Member Method
         private void SetProjectInfo()
         {
-            projectKey.Text = projectData!.projectKey;
-            excelPath.Text = projectData.excelPath;
-            resourcesPath.Text = projectData.resourcesPath;
-            addressablePath.Text = projectData.addressablePath;
-            isResourceData.Checked = projectData.isResourcesData;
-            tablePath.Text = projectData.tablePath;
-            dbPath.Text = projectData.dbPath;
+            projectKey.Text = SettingInfo.Name;
+            excelPath.Text = SettingInfo.ExcelPath;
+            resourcesPath.Text = SettingInfo.ResourcesPath;
+            addressablePath.Text = SettingInfo.AddressablePath;
+            isResourceData.Checked = SettingInfo.IsResourcesData;
+            tablePath.Text = SettingInfo.TablePath;
+            dbPath.Text = SettingInfo.DBPath;
         }
 
         private void SetComboBoxList()
         {
             Combo_Project.Items.Clear();
-            Combo_Project.Items.AddRange(User.Instance.GetProjects().Keys.ToArray());
+            Combo_Project.Items.AddRange(User.Instance.GetMySettingsKeys());
         }
         #endregion
 
@@ -39,36 +39,34 @@
         #region Form
         private void Setting_Load(object sender, EventArgs e)
         {
-            if(User.Instance.IsEmptyProject())
+            if (User.Instance.IsSettingEmpty())
             {
-                projectData = new ProjectData();
+                SettingInfo = new SettingInfo();
             }
             else
             {
                 SetComboBoxList();
-                projectData = User.Instance.GetCurrentProjectData();
+                SettingInfo = User.Instance.GetCurrentSetting();
             }
-            
-            SetProjectInfo();
-        }
 
-        private void Setting_FormClosed(object sender, FormClosedEventArgs e)
-        {
+            SetProjectInfo();
         }
         #endregion
 
         #region ComboBox
         private void Combo_Project_SelectedIndexChanged(object sender, EventArgs e)
         {
-            ComboBox? comboBox = sender as ComboBox;
+            var comboBox = sender as ComboBox;
             if (comboBox == null)
                 return;
 
             string? SelectItem = comboBox.SelectedItem as string;
+
             if (SelectItem == null)
                 return;
-            
-            projectData = User.Instance.GetProjectData(SelectItem);
+
+            SettingInfo = User.Instance.GetSetting(SelectItem);
+
             SetProjectInfo();
         }
         #endregion
@@ -76,25 +74,25 @@
         #region Button Event
         private void Btn_Save_Click(object sender, EventArgs e)
         {
-            User.Instance.Save(projectData!);
-
-            SetComboBoxList();
-
-            Combo_Project.SelectedItem = projectData!.projectKey;
+            User.Instance.SaveSettingInfo(SettingInfo);
         }
 
         private void Btn_OK_Click(object sender, EventArgs e)
         {
-            if (User.Instance.IsEmptyProject())
+            if (User.Instance.IsSettingEmpty())
+            {
+                MessageBox.Show("세팅이 없습니다.", "알림", MessageBoxButtons.OK);
                 return;
-            
-            User.Instance.Save(projectData!.projectKey);
+            }
+
+            User.Instance.ChangeCurrentSetting(SettingInfo.Name);
+
             Close();
         }
 
         private void Btn_NewSetting_Click(object sender, EventArgs e)
         {
-            projectData = new ProjectData();
+            SettingInfo = new SettingInfo();
             SetProjectInfo();
         }
 
@@ -131,75 +129,75 @@
             tablePath.Text = FolderBrowser.SelectedPath;
         }
         #endregion
-         
+
         #region Text Event
         private void Text_ProjectName_TextChanged(object sender, EventArgs e)
         {
-            TextBox? TextBox = sender as TextBox;
+            var TextBox = sender as TextBox;
 
-            if (TextBox != null && projectData != null)
+            if (TextBox != null && SettingInfo != null)
             {
-                projectData.projectKey = TextBox.Text;
+                SettingInfo.Name = TextBox.Text;
             }
         }
 
         private void Text_TablePath_TextChanged(object sender, EventArgs e)
         {
-            TextBox? TextBox = sender as TextBox;
+            var TextBox = sender as TextBox;
 
-            if (TextBox != null && projectData != null)
+            if (TextBox != null && SettingInfo != null)
             {
-                projectData.excelPath = TextBox.Text;
+                SettingInfo.ExcelPath = Path.Combine(TextBox.Text);
             }
         }
 
         private void Text_ClientSTRPath_TextChanged(object sender, EventArgs e)
         {
-            TextBox? TextBox = sender as TextBox;
+            var TextBox = sender as TextBox;
 
-            if (TextBox != null && projectData != null)
+            if (TextBox != null && SettingInfo != null)
             {
-                projectData.resourcesPath = TextBox.Text;
+                SettingInfo.ResourcesPath = Path.Combine(TextBox.Text);
             }
         }
 
         private void Text_BundleSTRPath_TextChanged(object sender, EventArgs e)
         {
-            TextBox? TextBox = sender as TextBox;
+            var TextBox = sender as TextBox;
 
-            if (TextBox != null && projectData != null)
+            if (TextBox != null && SettingInfo != null)
             {
-                projectData.addressablePath = TextBox.Text;
+                SettingInfo.AddressablePath = Path.Combine(TextBox.Text);
             }
         }
 
         private void Text_TableCSPath_TextChanged(object sender, EventArgs e)
         {
-            TextBox? TextBox = sender as TextBox;
+            var TextBox = sender as TextBox;
 
-            if (TextBox != null && projectData != null)
+            if (TextBox != null && SettingInfo != null)
             {
-                projectData.tablePath = TextBox.Text;
+                SettingInfo.TablePath = Path.Combine(TextBox.Text);
             }
         }
 
         private void Text_TableDataPath_TextChanged(object sender, EventArgs e)
         {
-            TextBox? TextBox = sender as TextBox;
+            var TextBox = sender as TextBox;
 
-            if (TextBox != null && projectData != null)
+            if (TextBox != null && SettingInfo != null)
             {
-                projectData.tablePath = TextBox.Text;
+                SettingInfo.TablePath = Path.Combine(TextBox.Text);
             }
         }
 
         private void Text_DBPath_TextChanged(object sender, EventArgs e)
         {
-            TextBox? TextBox = sender as TextBox;
+            var TextBox = sender as TextBox;
 
-            if (TextBox != null && projectData != null)
+            if (TextBox != null && SettingInfo != null)
             {
-                projectData.dbPath = TextBox.Text;
+                SettingInfo.DBPath = Path.Combine(TextBox.Text);
             }
         }
         #endregion

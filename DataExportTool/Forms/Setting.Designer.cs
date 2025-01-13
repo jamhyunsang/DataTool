@@ -218,6 +218,7 @@
             // 
             // Combo_Project
             // 
+            Combo_Project.DropDownStyle = ComboBoxStyle.DropDownList;
             Combo_Project.FormattingEnabled = true;
             Combo_Project.Location = new Point(6, 37);
             Combo_Project.Name = "Combo_Project";
@@ -316,6 +317,7 @@
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1264, 729);
+            ControlBox = false;
             Controls.Add(Btn_OK);
             Controls.Add(Btn_Remove);
             Controls.Add(Btn_Save);
@@ -323,7 +325,6 @@
             Controls.Add(Group_Info);
             Name = "Setting";
             Text = "Setting";
-            FormClosed += Setting_FormClosed;
             Load += Setting_Load;
             Group_Info.ResumeLayout(false);
             Group_Info.PerformLayout();

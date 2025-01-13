@@ -1,7 +1,6 @@
-﻿using Microsoft.Win32;
-
-public class User
+﻿public class User
 {
+    #region Instance
     private static Lazy<User> instance = new Lazy<User>(() =>
     {
         var instance = new User();
@@ -13,120 +12,77 @@ public class User
     {
         get { return instance.Value; }
     }
+    #endregion
 
-    private ProjectSaveData? projectSaveData = null;
+    #region Member Property
+    private Settings Settings = null;
+    #endregion
 
+    #region Member Method
     private void Init()
     {
-        string RegistryPath = "Software\\DataExportTool";
-        using (RegistryKey Key = Registry.CurrentUser.CreateSubKey(RegistryPath))
+        if (File.Exists(Def.SettingsPath))
         {
-            var RegistryData = Key.GetValue(Def.registryPath);
-            if (RegistryData != null)
-            {
-                var Data = RegistryData.ToString();
-
-                if (Data != null)
-                {
-                    projectSaveData = Util.ToObject<ProjectSaveData>(Data);
-                }
-                else
-                {
-                    projectSaveData = new ProjectSaveData();
-                }
-            }
-            else
-            {
-                projectSaveData = new ProjectSaveData();
-            }
-        }
-    }
-
-    public void Save()
-    {
-        string RegistryPath = "Software\\DataExportTool";
-        using (RegistryKey Key = Registry.CurrentUser.CreateSubKey(RegistryPath))
-        {
-            Key.SetValue(Def.registryPath, Util.ToJson(projectSaveData!));
-        }
-    }
-
-    public void Save(ProjectData projectData)
-    {
-        if(IsExistProject(projectData.projectKey))
-        {
-            projectSaveData!.projects[projectData.projectKey] = projectData;
+            var JsonData = File.ReadAllText(Def.SettingsPath);
+            Settings = Util.ToObject<Settings>(JsonData);
         }
         else
         {
-            projectSaveData!.projects.Add(projectData.projectKey, projectData);
+            Settings = new Settings();
         }
-        projectSaveData!.projectKey = projectData.projectKey;
+    }
 
-        string RegistryPath = "Software\\DataExportTool";
-        using (RegistryKey Key = Registry.CurrentUser.CreateSubKey(RegistryPath))
+    private void Save()
+    {
+        File.WriteAllText(Def.SettingsPath, Util.ToJson(Settings));
+    }
+
+    public void SaveSettingInfo(SettingInfo SettingInfo)
+    {
+        if(Settings.MySettings.ContainsKey(SettingInfo.Name))
         {
-            Key.SetValue(Def.registryPath, Util.ToJson(projectSaveData!));
+            Settings.MySettings[SettingInfo.Name] = SettingInfo;
         }
-    }
-
-    public void Save(string projectKey)
-    {
-        if (!IsExistProject(projectKey))
-            return;
-
-        projectSaveData!.projectKey = projectKey;
-
-        string RegistryPath = "Software\\DataExportTool";
-        using (RegistryKey Key = Registry.CurrentUser.CreateSubKey(RegistryPath))
-        {
-            Key.SetValue(Def.registryPath, Util.ToJson(projectSaveData!));
-        }
-    }
-
-    public string GetProjectKey()
-    {
-        return projectSaveData!.projectKey;
-    }
-
-    public void SetProjectKey(string projectKey)
-    {
-        projectSaveData!.projectKey = projectKey;
-    }
-
-    public Dictionary<string, ProjectData> GetProjects()
-    {
-        return projectSaveData!.projects;
-    }
-
-    public ProjectData? GetCurrentProjectData()
-    {
-        if (string.IsNullOrEmpty(projectSaveData!.projectKey))
-            return null;
-        else
-            return projectSaveData!.projects[projectSaveData!.projectKey];
-    }
-
-    public ProjectData? GetProjectData(string projectKey)
-    {
-        if (string.IsNullOrEmpty(projectKey))
-            return null;
         else
         {
-            if (IsExistProject(projectKey))
-                return projectSaveData!.projects[projectKey];
-            else
-                return null;
+            Settings.MySettings.Add(SettingInfo.Name, SettingInfo);
         }
+
+        Settings.CurrentSetting = SettingInfo.Name;
+
+        Save();
     }
 
-    public bool IsExistProject(string projectKey)
+    public void ChangeCurrentSetting(string SettingName)
     {
-        return projectSaveData!.projects.ContainsKey(projectKey);
+        Settings.CurrentSetting = SettingName;
+
+        Save();
     }
 
-    public bool IsEmptyProject()
+    public bool IsExist(string SettingName)
     {
-        return projectSaveData!.projects.Count == 0;
+        return Settings.MySettings.ContainsKey(SettingName);
     }
+
+    public bool IsSettingEmpty()
+    {
+        return Settings.MySettings.Count == 0;
+    }
+
+    public SettingInfo GetCurrentSetting()
+    {
+        return Settings.MySettings[Settings.CurrentSetting];
+    }
+
+    public SettingInfo GetSetting(string SettingName)
+    {
+        return Settings.MySettings[SettingName];
+    }
+
+    public string[] GetMySettingsKeys()
+    {
+        return Settings.MySettings.Keys.ToArray();
+    }
+    #endregion
 }

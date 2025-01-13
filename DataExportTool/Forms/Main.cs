@@ -15,20 +15,23 @@ namespace DataExportTool
         }
 
         #region Member Property
-        private ProjectData? project = null;
-        Setting Form_Setting = new Setting();
+        private List<TableInfo> TableInfoList = null;
+
+        private Setting Form_Setting = new Setting();
         #endregion
 
         #region Member Method
         private void SetProjectInfo()
         {
-            projectKey.Text = project!.projectKey;
-            excelPath.Text = project.excelPath;
-            resourcesPath.Text = project.resourcesPath;
-            addressablePath.Text = project.addressablePath;
-            isResourcesData.Text = $"{project.isResourcesData}";
-            tablePath.Text = project.tablePath;
-            dbPath.Text = project.dbPath;
+            var SettingInfo = User.Instance.GetCurrentSetting();
+
+            projectKey.Text = SettingInfo.Name;
+            excelPath.Text = SettingInfo.ExcelPath;
+            resourcesPath.Text = SettingInfo.ResourcesPath;
+            addressablePath.Text = SettingInfo.AddressablePath;
+            isResourcesData.Text = $"{SettingInfo.IsResourcesData}";
+            tablePath.Text = SettingInfo.TablePath;
+            dbPath.Text = SettingInfo.DBPath;
         }
         #endregion
 
@@ -36,16 +39,18 @@ namespace DataExportTool
         #region Form
         private void Main_Load(object sender, EventArgs e)
         {
-
-            if (User.Instance.IsEmptyProject())
+            if (User.Instance.IsSettingEmpty())
             {
                 Form_Setting.ShowDialog();
             }
             else
             {
-                project = User.Instance.GetCurrentProjectData();
                 SetProjectInfo();
             }
+        }
+
+        private void Form_Setting_FormClosed(object? sender, FormClosedEventArgs e)
+        {
         }
         #endregion
 
@@ -55,28 +60,35 @@ namespace DataExportTool
             Form_Setting.ShowDialog();
         }
 
-        private void Form_Setting_FormClosed(object? sender, FormClosedEventArgs e)
-        {
-            SetProjectInfo();
-        }
-
         private void ListBox_Table_SelectedIndexChanged(object sender, EventArgs e)
         {
             var ListBox = sender as ListBox;
-            if (ListBox != null)
+            if (ListBox != null && !string.IsNullOrEmpty(ListBox.Text))
             {
+                var selectTable = TableInfoList.Where(Data => Data.SheetName.Equals(ListBox.Text)).SingleOrDefault();
 
+                var tableData = Core.GetTable(selectTable.ExcelName, selectTable.SheetName);
+
+                tableDataView.DataSource = tableData;
             }
         }
 
         private void Btn_ExcelLoad_Click(object sender, EventArgs e)
         {
-            var Data = Core.Load_TableList();
+            TableInfoList = Core.GetTableList();
 
-            if (Data != null)
-            {
+            ListBox_Table.Items.Clear();
+            ListBox_Table.Items.AddRange(TableInfoList.Select(Data => Data.SheetName).ToArray());
+        }
 
-            }
+        private void Btn_TableCSExport_Click(object sender, EventArgs e)
+        {
+            Core.MakeTable();
+        }
+
+        private void Btn_DataExport_Click(object sender, EventArgs e)
+        {
+            Core.ExportTable();
         }
         #endregion
         #endregion
