@@ -15,7 +15,7 @@ public static class Util
         return JsonConvert.DeserializeObject<T>(Str);
     }
 
-    public static string Compress(string Str)
+    public static byte[] Compress(string Str)
     {
         var Data = Encoding.UTF8.GetBytes(Str);
         using (var MemoryStream = new MemoryStream())
@@ -24,7 +24,7 @@ public static class Util
             {
                 BrotliStream.Write(Data, 0, Data.Length);
             }
-            return ToJson(MemoryStream.ToArray());
+            return MemoryStream.ToArray();
         }
     }
 
@@ -44,22 +44,27 @@ public static class Util
         }
     }
 
-    public static string Encrypt(string input)
+    public static byte[] Encrypt(byte[] Bytes)
     {
-        using (var aes = Aes.Create())
+        var Str = Encoding.UTF8.GetString(Bytes);
+
+        using (var AES = Aes.Create())
         {
-            aes.Key = Def.EncryptKey;
-            aes.IV = Def.EncryptIV;
-            using (var encryptor = aes.CreateEncryptor())
+            AES.Key = Def.EncryptKey;
+            AES.IV = Def.EncryptIV;
+            using (var Encryptor = AES.CreateEncryptor())
             {
-                using (var outputStream = new MemoryStream())
+                using (var MemoryStream = new MemoryStream())
                 {
-                    using (var cryptoStream = new CryptoStream(outputStream, encryptor, CryptoStreamMode.Write))
-                    using (var writer = new StreamWriter(cryptoStream))
+                    using (var CryptoStream = new CryptoStream(MemoryStream, Encryptor, CryptoStreamMode.Write))
                     {
-                        writer.Write(input);
+                        using (var StreamWriter = new StreamWriter(CryptoStream))
+                        {
+                            StreamWriter.Write(Str);
+                        }
+                        
+                        return MemoryStream.ToArray();
                     }
-                    return ToJson(outputStream.ToArray());
                 }
             }
         }
