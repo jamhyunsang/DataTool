@@ -17,8 +17,6 @@ public class SettingInfo
     public string ExcelPath = string.Empty;         // 엑셀 위치
 
     public string ResourcesPath = string.Empty;     // 리소스 폴더 위치
-    public string AddressablePath = string.Empty;   // 어드레서블 폴더 위치
-    public bool IsResourcesData = true;             // 데이터 저장 위치 설정`
 
     public string TablePath = string.Empty;         // 테이블 폴더 위치
     public string DBPath = string.Empty;            // 디비 주소
@@ -34,5 +32,4 @@ public class TableInfo
 {
     public string ExcelName = string.Empty;
     public string SheetName = string.Empty;
-    public bool IsLocalTable = false;
 }

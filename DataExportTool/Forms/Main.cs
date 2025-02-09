@@ -28,8 +28,6 @@ namespace DataExportTool
             projectKey.Text = SettingInfo.Name;
             excelPath.Text = SettingInfo.ExcelPath;
             resourcesPath.Text = SettingInfo.ResourcesPath;
-            addressablePath.Text = SettingInfo.AddressablePath;
-            isResourcesData.Text = $"{SettingInfo.IsResourcesData}";
             tablePath.Text = SettingInfo.TablePath;
             dbPath.Text = SettingInfo.DBPath;
         }

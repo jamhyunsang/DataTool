@@ -15,78 +15,72 @@ public static class Util
         return JsonConvert.DeserializeObject<T>(Str);
     }
 
-    public static byte[] Compress(string Str)
+    public static byte[] Compress(string str)
     {
-        var Data = Encoding.UTF8.GetBytes(Str);
-        using (var MemoryStream = new MemoryStream())
+        using (var memoryStream = new MemoryStream())
         {
-            using (var BrotliStream = new BrotliStream(MemoryStream, CompressionLevel.Optimal))
+            using (var brotliStream = new BrotliStream(memoryStream, CompressionLevel.Optimal))
             {
-                BrotliStream.Write(Data, 0, Data.Length);
+                using (var streamWriter = new StreamWriter(brotliStream))
+                {
+                    streamWriter.Write(str);
+                }
             }
-            return MemoryStream.ToArray();
+            return memoryStream.ToArray();
         }
     }
 
-    public static string Decompress(string Str)
+    public static string Decompress(byte[] bytes)
     {
-        var Data = ToObject<byte[]>(Str);
-        using (var InputStream = new MemoryStream(Data))
+        using (var inputStream = new MemoryStream(bytes))
         {
-            using (var BrotliStream = new BrotliStream(InputStream, CompressionMode.Decompress))
+            using (var brotliStream = new BrotliStream(inputStream, CompressionMode.Decompress))
             {
-                using (var outputStream = new MemoryStream())
+                using (var streamReader = new StreamReader(brotliStream))
                 {
-                    BrotliStream.CopyTo(outputStream);
-                    return Encoding.UTF8.GetString(outputStream.ToArray());
+                    return streamReader.ReadToEnd();
                 }
             }
         }
     }
 
-    public static byte[] Encrypt(byte[] Bytes)
+    public static byte[] Encrypt(byte[] bytes)
     {
-        var Str = Encoding.UTF8.GetString(Bytes);
-
-        using (var AES = Aes.Create())
+        using (var aes = Aes.Create())
         {
-            AES.Key = Def.EncryptKey;
-            AES.IV = Def.EncryptIV;
-            using (var Encryptor = AES.CreateEncryptor())
+            aes.Key = Def.EncryptKey;
+            aes.IV = Def.EncryptIV;
+            using (var encryptor = aes.CreateEncryptor(aes.Key, aes.IV))
             {
-                using (var MemoryStream = new MemoryStream())
+                using (var memoryStream = new MemoryStream())
                 {
-                    using (var CryptoStream = new CryptoStream(MemoryStream, Encryptor, CryptoStreamMode.Write))
+                    using (var cryptoStream = new CryptoStream(memoryStream, encryptor, CryptoStreamMode.Write))
                     {
-                        using (var StreamWriter = new StreamWriter(CryptoStream))
-                        {
-                            StreamWriter.Write(Str);
-                        }
-                        
-                        return MemoryStream.ToArray();
+                        cryptoStream.Write(bytes, 0, bytes.Length);
+                        cryptoStream.FlushFinalBlock();
+                        return memoryStream.ToArray();
                     }
                 }
             }
         }
     }
 
-    public static string Decrypt(string encryptedData)
+    public static byte[] Decrypt(byte[] bytes)
     {
-        var ByteData = ToObject<byte[]>(encryptedData);
-
         using (var aes = Aes.Create())
         {
             aes.Key = Def.EncryptKey;
             aes.IV = Def.EncryptIV;
-            using (var decryptor = aes.CreateDecryptor())
+            using (var decryptor = aes.CreateDecryptor(aes.Key, aes.IV))
             {
-                using (var inputStream = new MemoryStream(ByteData))
+                using (var memoryStream = new MemoryStream(bytes))
                 {
-                    using (var cryptoStream = new CryptoStream(inputStream, decryptor, CryptoStreamMode.Read))
+                    using (var cryptoStream = new CryptoStream(memoryStream, decryptor, CryptoStreamMode.Read))
                     {
-                        using (var reader = new StreamReader(cryptoStream))
+                        using (var outputStream = new MemoryStream())
                         {
-                            return reader.ReadToEnd();
+                            cryptoStream.CopyTo(outputStream);
+                            return outputStream.ToArray();
                         }
                     }
                 }

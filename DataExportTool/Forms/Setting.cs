@@ -22,8 +22,6 @@
             projectKey.Text = SettingInfo.Name;
             excelPath.Text = SettingInfo.ExcelPath;
             resourcesPath.Text = SettingInfo.ResourcesPath;
-            addressablePath.Text = SettingInfo.AddressablePath;
-            isResourceData.Checked = SettingInfo.IsResourcesData;
             tablePath.Text = SettingInfo.TablePath;
             dbPath.Text = SettingInfo.DBPath;
         }
@@ -164,11 +162,6 @@
         private void Text_BundleSTRPath_TextChanged(object sender, EventArgs e)
         {
             var TextBox = sender as TextBox;
-
-            if (TextBox != null && SettingInfo != null)
-            {
-                SettingInfo.AddressablePath = Path.Combine(TextBox.Text);
-            }
         }
 
         private void Text_TableCSPath_TextChanged(object sender, EventArgs e)
